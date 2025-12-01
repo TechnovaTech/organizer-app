@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'otp_verification_screen.dart';
 
 class PhoneLoginScreen extends StatefulWidget {
@@ -14,9 +15,9 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
   bool _rememberMe = false;
 
   void _sendOTP() async {
-    if (_phoneController.text.isEmpty) {
+    if (_phoneController.text.isEmpty || _phoneController.text.length < 10) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid phone number')),
+        const SnackBar(content: Text('Please enter a valid 10-digit phone number')),
       );
       return;
     }
@@ -113,6 +114,10 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                 TextField(
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
+                  maxLength: 10,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                  ],
                   decoration: InputDecoration(
                     hintText: 'Enter your phone number',
                     hintStyle: TextStyle(color: Colors.grey.shade400),
@@ -129,6 +134,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                       horizontal: 16,
                       vertical: 16,
                     ),
+                    counterText: '',
                   ),
                 ),
                 const SizedBox(height: 20),
