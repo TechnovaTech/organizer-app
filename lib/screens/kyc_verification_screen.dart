@@ -9,8 +9,10 @@ class KYCVerificationScreen extends StatefulWidget {
 
 class _KYCVerificationScreenState extends State<KYCVerificationScreen> {
   String _status = 'PENDING';
-  String? _aadhaarIdFile;
+  final TextEditingController _aadhaarIdController = TextEditingController();
+  final TextEditingController _panIdController = TextEditingController();
   String? _aadhaarPhotoFile;
+  String? _panPhotoFile;
   String _rejectionNotes = '';
   bool _isLoading = false;
 
@@ -27,10 +29,10 @@ class _KYCVerificationScreenState extends State<KYCVerificationScreen> {
               onTap: () {
                 Navigator.pop(context);
                 setState(() {
-                  if (fileType == 'aadhaar_id') {
-                    _aadhaarIdFile = 'aadhaar_id_document.jpg';
-                  } else if (fileType == 'aadhaar_photo') {
-                    _aadhaarPhotoFile = 'aadhaar_photo_document.jpg';
+                  if (fileType == 'aadhaar') {
+                    _aadhaarPhotoFile = 'aadhaar_photo_gallery.jpg';
+                  } else if (fileType == 'pan') {
+                    _panPhotoFile = 'pan_photo_gallery.jpg';
                   }
                 });
               },
@@ -41,10 +43,10 @@ class _KYCVerificationScreenState extends State<KYCVerificationScreen> {
               onTap: () {
                 Navigator.pop(context);
                 setState(() {
-                  if (fileType == 'aadhaar_id') {
-                    _aadhaarIdFile = 'aadhaar_id_camera.jpg';
-                  } else if (fileType == 'aadhaar_photo') {
+                  if (fileType == 'aadhaar') {
                     _aadhaarPhotoFile = 'aadhaar_photo_camera.jpg';
+                  } else if (fileType == 'pan') {
+                    _panPhotoFile = 'pan_photo_camera.jpg';
                   }
                 });
               },
@@ -56,9 +58,10 @@ class _KYCVerificationScreenState extends State<KYCVerificationScreen> {
   }
 
   void _submitForReview() async {
-    if (_aadhaarIdFile == null || _aadhaarPhotoFile == null) {
+    if (_aadhaarIdController.text.isEmpty || _aadhaarPhotoFile == null || 
+        _panIdController.text.isEmpty || _panPhotoFile == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please upload both Aadhaar documents')),
+        const SnackBar(content: Text('Please complete all Aadhaar and PAN details')),
       );
       return;
     }
@@ -116,59 +119,50 @@ class _KYCVerificationScreenState extends State<KYCVerificationScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
-
-              // Upload ID Proof Section
+              // Card Details Heading
               const Text(
-                'Upload ID Proof',
+                'Card Details',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
               
-              // Aadhaar Card ID Upload
+              // Aadhaar Card ID Input
               const Text(
-                'Aadhaar Card ID:',
+                'Card ID:',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 8),
-              GestureDetector(
-                onTap: () => _selectFile('aadhaar_id'),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade300),
+              TextField(
+                controller: _aadhaarIdController,
+                decoration: InputDecoration(
+                  hintText: 'Enter  Card ID',
+                  border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
                   ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.upload_file, color: Color(0xFF001F3F)),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          _aadhaarIdFile ?? 'Choose File',
-                          style: TextStyle(
-                            color: _aadhaarIdFile != null ? Colors.black : Colors.grey.shade600,
-                          ),
-                        ),
-                      ),
-                      if (_aadhaarIdFile != null)
-                        const Icon(Icons.visibility, color: Color(0xFF001F3F)),
-                    ],
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
                   ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Color(0xFF001F3F)),
+                  ),
+                  contentPadding: const EdgeInsets.all(16),
                 ),
+                keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 20),
               
               // Aadhaar Card Photo Upload
               const Text(
-                'Aadhaar Card Photo:',
+                'Card Photo:',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
@@ -176,7 +170,7 @@ class _KYCVerificationScreenState extends State<KYCVerificationScreen> {
               ),
               const SizedBox(height: 8),
               GestureDetector(
-                onTap: () => _selectFile('aadhaar_photo'),
+                onTap: () => _selectFile('aadhaar'),
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
@@ -197,6 +191,87 @@ class _KYCVerificationScreenState extends State<KYCVerificationScreen> {
                         ),
                       ),
                       if (_aadhaarPhotoFile != null)
+                        const Icon(Icons.visibility, color: Color(0xFF001F3F)),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 32),
+              
+              // PAN Card Details Heading
+              const Text(
+                'Card Details',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF001F3F),
+                ),
+              ),
+              const SizedBox(height: 20),
+              
+              // PAN Card ID Input
+              const Text(
+                ' Card ID:',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _panIdController,
+                decoration: InputDecoration(
+                  hintText: 'Enter  Card ID',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Color(0xFF001F3F)),
+                  ),
+                  contentPadding: const EdgeInsets.all(16),
+                ),
+                textCapitalization: TextCapitalization.characters,
+              ),
+              const SizedBox(height: 20),
+              
+              // PAN Card Photo Upload
+              const Text(
+                ' Card Photo:',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 8),
+              GestureDetector(
+                onTap: () => _selectFile('pan'),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.upload_file, color: Color(0xFF001F3F)),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          _panPhotoFile ?? 'Choose File',
+                          style: TextStyle(
+                            color: _panPhotoFile != null ? Colors.black : Colors.grey.shade600,
+                          ),
+                        ),
+                      ),
+                      if (_panPhotoFile != null)
                         const Icon(Icons.visibility, color: Color(0xFF001F3F)),
                     ],
                   ),
