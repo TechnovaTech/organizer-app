@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'kyc_verification_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -44,8 +45,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _isLoading = false;
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Profile saved successfully!')),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const KYCVerificationScreen(),
+      ),
     );
   }
 
