@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'profile_screen.dart';
+import 'artist_fill_profile_screen.dart';
 
 class UserTypeSelectionScreen extends StatelessWidget {
   const UserTypeSelectionScreen({super.key});
@@ -28,8 +29,9 @@ class UserTypeSelectionScreen extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Artist selected')),
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ArtistFillProfileScreen()),
                   );
                 },
                 style: ElevatedButton.styleFrom(
