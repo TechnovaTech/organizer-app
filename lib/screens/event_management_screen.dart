@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'edit_event_screen.dart';
 import 'jatra_registration_screen.dart';
 import 'qr_scanner_screen.dart';
+import 'event_media_upload_screen.dart';
 
 class EventManagementScreen extends StatefulWidget {
   const EventManagementScreen({super.key});
@@ -635,83 +636,7 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
               onChanged: (value) {},
             ),
             
-            const SizedBox(height: 32),
-            
-            // Event Description
-            const Text(
-              'Event Description *',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade300),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                children: [
-                  // Toolbar
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(8),
-                        topRight: Radius.circular(8),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        IconButton(
-                          onPressed: () {},
-                          icon: const Icon(Icons.format_bold, size: 20),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                        ),
-                        IconButton(
-                          onPressed: () {},
-                          icon: const Icon(Icons.format_italic, size: 20),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                        ),
-                        IconButton(
-                          onPressed: () {},
-                          icon: const Icon(Icons.format_underlined, size: 20),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                        ),
-                        IconButton(
-                          onPressed: () {},
-                          icon: const Icon(Icons.format_list_bulleted, size: 20),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                        ),
-                        IconButton(
-                          onPressed: () {},
-                          icon: const Icon(Icons.format_list_numbered, size: 20),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                        ),
 
-                      ],
-                    ),
-                  ),
-                  // Text Area
-                  TextField(
-                    maxLines: 8,
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.all(16),
-                      hintText: 'Describe your event...',
-                    ),
-                  ),
-                ],
-              ),
-            ),
             
             const SizedBox(height: 32),
             
@@ -728,8 +653,9 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
                     return;
                   }
                   
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Event saved successfully!')),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const EventMediaUploadScreen()),
                   );
                 },
                 style: ElevatedButton.styleFrom(
@@ -953,12 +879,14 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
 
 
   void _editEvent(int index) async {
+    final event = events[index];
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => EditEventScreen(
-          event: events[index],
-          onEventUpdated: (updatedEvent) => _updateEvent(index, updatedEvent),
+          eventTitle: event['title'],
+          eventDate: event['dateTime'],
+          eventLocation: 'Event Location',
         ),
       ),
     );

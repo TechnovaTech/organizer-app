@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
 
 class QRScannerScreen extends StatefulWidget {
   const QRScannerScreen({super.key});
@@ -10,144 +9,245 @@ class QRScannerScreen extends StatefulWidget {
 
 class _QRScannerScreenState extends State<QRScannerScreen> {
   bool _isScanning = false;
-  String _lastScannedCode = '';
-  bool _isAdmin = true; // Current user is admin
+  String _scanResult = '';
+  String _resultMessage = '';
+  Color _resultColor = Colors.grey;
   
-  // Mock database of valid tickets
-  final List<Map<String, dynamic>> _validTickets = [
-    {'code': 'TKT001', 'event': 'Garba Night 2024', 'used': false, 'holder': 'John Doe'},
-    {'code': 'TKT002', 'event': 'Garba Night 2024', 'used': true, 'holder': 'Jane Smith'},
-    {'code': 'TKT003', 'event': 'Diwali Celebration', 'used': false, 'holder': 'Mike Johnson'},
-    {'code': 'TKT004', 'event': 'Garba Night 2024', 'used': false, 'holder': 'Sarah Wilson'},
-  ];
-  
-  // Mock scanner accounts database
-  final List<Map<String, dynamic>> _scannerAccounts = [
-    {'username': 'gate1', 'password': '1234', 'name': 'Gate Staff 1', 'active': true},
-    {'username': 'gate2', 'password': '5678', 'name': 'Gate Staff 2', 'active': true},
-    {'username': 'gate3', 'password': '9999', 'name': 'Gate Staff 3', 'active': false},
-  ];
-  
-  final String _currentEvent = 'Garba Night 2024';
+  // Mock scanned tickets for demo
+  final List<String> _scannedTickets = [];
+  final List<String> _validTickets = ['TICKET001', 'TICKET002', 'TICKET003'];
 
   void _startScanning() {
     setState(() {
       _isScanning = true;
+      _scanResult = '';
+      _resultMessage = 'Scanning...';
+      _resultColor = Colors.blue;
     });
-    
+
     // Simulate scanning delay
     Future.delayed(const Duration(seconds: 2), () {
-      if (_isScanning) {
-        _simulateQRScan();
+      _simulateScan();
+    });
+  }
+
+  void _simulateScan() {
+    // Simulate different scan results
+    final List<String> mockResults = [
+      'TICKET001', // Valid
+      'TICKET002', // Valid
+      'TICKET001', // Duplicate
+      'INVALID123', // Invalid
+    ];
+    
+    final String scannedCode = mockResults[DateTime.now().millisecond % mockResults.length];
+    _processScanResult(scannedCode);
+  }
+
+  void _processScanResult(String code) {
+    setState(() {
+      _isScanning = false;
+      _scanResult = code;
+      
+      if (!_validTickets.contains(code)) {
+        // Invalid ticket
+        _resultMessage = 'Invalid Ticket\nTicket does not match event';
+        _resultColor = Colors.red;
+      } else if (_scannedTickets.contains(code)) {
+        // Duplicate ticket
+        _resultMessage = 'Duplicate Entry\nTicket already used';
+        _resultColor = Colors.red;
+      } else {
+        // Valid ticket
+        _scannedTickets.add(code);
+        _resultMessage = 'Check-in Successful\nWelcome to the event!';
+        _resultColor = Colors.green;
       }
     });
   }
 
-  void _stopScanning() {
-    setState(() {
-      _isScanning = false;
-    });
-  }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF001F3F),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'QR Scanner',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings, color: Colors.white),
+            onPressed: () {
+              _showScannerSettings();
+            },
+          ),
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          children: [
+            // Scanner Area
+            Expanded(
+              flex: 2,
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.grey.shade300, width: 2),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (_isScanning) ...[
+                      const CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF001F3F)),
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Scanning QR Code...',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ] else ...[
+                      Icon(
+                        Icons.qr_code_scanner,
+                        size: 80,
+                        color: Colors.grey.shade600,
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        'Tap to scan QR code',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.grey.shade600,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+            
+            const SizedBox(height: 24),
+            
+            // Scan Button
+            Container(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _isScanning ? null : _startScanning,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF001F3F),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  _isScanning ? 'Scanning...' : 'Start Scanning',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+            
+            const SizedBox(height: 24),
+            
+            // Result Area
+            if (_scanResult.isNotEmpty) ...[
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: _resultColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: _resultColor, width: 2),
+                ),
+                child: Column(
+                  children: [
+                    Icon(
+                      _resultColor == Colors.green 
+                          ? Icons.check_circle 
+                          : Icons.error,
+                      size: 48,
+                      color: _resultColor,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      _resultMessage,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: _resultColor,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Ticket: $_scanResult',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+            
 
-  void _simulateQRScan() {
-    // Generate random ticket codes for demo
-    final codes = ['TKT001', 'TKT002', 'TKT003', 'TKT004', 'TKT999', 'INVALID'];
-    final randomCode = codes[Random().nextInt(codes.length)];
-    
-    setState(() {
-      _lastScannedCode = randomCode;
-      _isScanning = false;
-    });
-    
-    _validateTicket(randomCode);
-  }
-
-  void _validateTicket(String code) {
-    final ticket = _validTickets.firstWhere(
-      (t) => t['code'] == code,
-      orElse: () => {},
+          ],
+        ),
+      ),
     );
-
-    if (ticket.isEmpty) {
-      _showValidationResult(
-        'Invalid Ticket',
-        'Ticket does not match event',
-        Colors.red,
-        Icons.error,
-      );
-    } else if (ticket['event'] != _currentEvent) {
-      _showValidationResult(
-        'Invalid Event',
-        'Ticket is for ${ticket['event']}',
-        Colors.red,
-        Icons.error,
-      );
-    } else if (ticket['used']) {
-      _showValidationResult(
-        'Duplicate Entry',
-        'Ticket already used by ${ticket['holder']}',
-        Colors.red,
-        Icons.warning,
-      );
-    } else {
-      // Mark ticket as used
-      ticket['used'] = true;
-      _showValidationResult(
-        'Check-in Successful',
-        'Welcome ${ticket['holder']}!',
-        Colors.green,
-        Icons.check_circle,
-      );
-    }
   }
 
-  void _showValidationResult(String title, String message, Color color, IconData icon) {
+
+
+  void _showScannerSettings() {
     showDialog(
       context: context,
-      barrierDismissible: false,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Scanner Settings'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: color, size: 48),
+            ListTile(
+              leading: const Icon(Icons.person_add, color: Color(0xFF001F3F)),
+              title: const Text('Create Scanner Account'),
+              subtitle: const Text('Add gate staff with scan-only access'),
+              onTap: () {
+                Navigator.pop(context);
+                _showCreateScannerAccount();
+              },
             ),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              style: const TextStyle(fontSize: 16),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: color,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                ),
-                child: const Text('Continue'),
-              ),
+            ListTile(
+              leading: const Icon(Icons.history, color: Color(0xFF001F3F)),
+              title: const Text('Scan History'),
+              subtitle: const Text('View all scanned tickets'),
+              onTap: () {
+                Navigator.pop(context);
+                _showScanHistory();
+              },
             ),
           ],
         ),
@@ -155,340 +255,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF001F3F),
-        elevation: 0,
-        title: const Text(
-          'QR Scanner',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          if (_isAdmin)
-            IconButton(
-              icon: const Icon(Icons.people, color: Colors.white),
-              onPressed: () => _showScannerAccounts(),
-            ),
-        ],
-      ),
-      body: Column(
-        children: [
-          // Event Info
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            color: const Color(0xFF001F3F),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Current Event',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          _currentEvent,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: _isAdmin ? Colors.orange : Colors.green,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        _isAdmin ? 'ADMIN' : 'SCANNER',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          
-          // Scanner Area
-          Expanded(
-            child: Container(
-              margin: const EdgeInsets.all(32),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: _isScanning ? Colors.green : Colors.white,
-                  width: 2,
-                ),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Stack(
-                children: [
-                  // Scanner Frame
-                  Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(14),
-                      color: Colors.grey.withOpacity(0.1),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          _isScanning ? Icons.qr_code_scanner : Icons.qr_code,
-                          size: 80,
-                          color: _isScanning ? Colors.green : Colors.white,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          _isScanning ? 'Scanning...' : 'Position QR code in frame',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        if (_lastScannedCode.isNotEmpty) ...[
-                          const SizedBox(height: 16),
-                          Text(
-                            'Last scanned: $_lastScannedCode',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.7),
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  
-                  // Scanning Animation
-                  if (_isScanning)
-                    Positioned.fill(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: Colors.green, width: 2),
-                        ),
-                        child: AnimatedContainer(
-                          duration: const Duration(seconds: 1),
-                          curve: Curves.easeInOut,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(14),
-                            color: Colors.green.withOpacity(0.1),
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-          
-          // Controls
-          Container(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _isScanning ? _stopScanning : _startScanning,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _isScanning ? Colors.red : Colors.green,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(_isScanning ? Icons.stop : Icons.qr_code_scanner),
-                        const SizedBox(width: 8),
-                        Text(
-                          _isScanning ? 'Stop Scanning' : 'Start Scanning',
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                
-                // Manual Entry
-                OutlinedButton(
-                  onPressed: () => _showManualEntry(),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    side: const BorderSide(color: Colors.white),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                  child: const Text('Manual Entry'),
-                ),
-                
-                if (_isAdmin) ...[
-                  const SizedBox(height: 12),
-                  OutlinedButton(
-                    onPressed: () => _showScannerAccounts(),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.white),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                    child: const Text('Manage Scanner Accounts'),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showManualEntry() {
-    final controller = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Manual Ticket Entry'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Ticket Code',
-            border: OutlineInputBorder(),
-          ),
-          textCapitalization: TextCapitalization.characters,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              if (controller.text.isNotEmpty) {
-                setState(() {
-                  _lastScannedCode = controller.text;
-                });
-                _validateTicket(controller.text);
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF001F3F),
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Validate'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showScannerAccounts() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Scanner Accounts'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Gate Staff Accounts', style: TextStyle(fontWeight: FontWeight.bold)),
-                  IconButton(
-                    onPressed: () => _createScannerAccount(),
-                    icon: const Icon(Icons.add, color: Color(0xFF001F3F)),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                height: 200,
-                child: ListView.builder(
-                  itemCount: _scannerAccounts.length,
-                  itemBuilder: (context, index) {
-                    final account = _scannerAccounts[index];
-                    return Card(
-                      child: ListTile(
-                        leading: Icon(
-                          Icons.person,
-                          color: account['active'] ? Colors.green : Colors.grey,
-                        ),
-                        title: Text(account['name']),
-                        subtitle: Text('Username: ${account['username']}'),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Switch(
-                              value: account['active'],
-                              onChanged: (value) {
-                                setState(() {
-                                  account['active'] = value;
-                                });
-                                Navigator.pop(context);
-                                _showScannerAccounts();
-                              },
-                            ),
-                            IconButton(
-                              onPressed: () => _deleteScannerAccount(index),
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _createScannerAccount() {
-    final nameController = TextEditingController();
-    final usernameController = TextEditingController();
-    final passwordController = TextEditingController();
-
+  void _showCreateScannerAccount() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -496,40 +263,17 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(
+            const TextField(
+              decoration: InputDecoration(
                 labelText: 'Staff Name',
                 border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 16),
-            TextField(
-              controller: usernameController,
-              decoration: const InputDecoration(
-                labelText: 'Username',
+            const TextField(
+              decoration: InputDecoration(
+                labelText: 'Email',
                 border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: passwordController,
-              decoration: const InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
-              ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.blue.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Text(
-                'Scanner accounts have scan-only permissions. They cannot access other features.',
-                style: TextStyle(fontSize: 12, color: Colors.blue),
               ),
             ),
           ],
@@ -541,55 +285,44 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
           ),
           ElevatedButton(
             onPressed: () {
-              if (nameController.text.isNotEmpty && 
-                  usernameController.text.isNotEmpty && 
-                  passwordController.text.isNotEmpty) {
-                setState(() {
-                  _scannerAccounts.add({
-                    'username': usernameController.text,
-                    'password': passwordController.text,
-                    'name': nameController.text,
-                    'active': true,
-                  });
-                });
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Scanner account created successfully!')),
-                );
-              }
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Scanner account created successfully')),
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF001F3F),
-              foregroundColor: Colors.white,
             ),
-            child: const Text('Create'),
+            child: const Text('Create', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
     );
   }
 
-  void _deleteScannerAccount(int index) {
+  void _showScanHistory() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Account'),
-        content: Text('Are you sure you want to delete ${_scannerAccounts[index]['name']}?'),
+        title: const Text('Scan History'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: _scannedTickets.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                leading: const Icon(Icons.check_circle, color: Colors.green),
+                title: Text(_scannedTickets[index]),
+                subtitle: Text('Scanned at ${DateTime.now().toString().substring(11, 16)}'),
+              );
+            },
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                _scannerAccounts.removeAt(index);
-              });
-              Navigator.pop(context);
-              Navigator.pop(context);
-              _showScannerAccounts();
-            },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child: const Text('Close'),
           ),
         ],
       ),
