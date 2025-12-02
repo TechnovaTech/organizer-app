@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dashboard_screen.dart';
 
 class KYCVerificationScreen extends StatefulWidget {
   const KYCVerificationScreen({super.key});
@@ -80,6 +81,12 @@ class _KYCVerificationScreenState extends State<KYCVerificationScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Documents submitted for review')),
     );
+    
+    // Navigate to dashboard
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const DashboardScreen()),
+    );
   }
 
   Color _getStatusColor() {
@@ -119,9 +126,9 @@ class _KYCVerificationScreenState extends State<KYCVerificationScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Card Details Heading
+              // Aadhaar Card Details Heading
               const Text(
-                'Card Details',
+                'Aadhaar Card Details',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -201,11 +208,10 @@ class _KYCVerificationScreenState extends State<KYCVerificationScreen> {
               
               // PAN Card Details Heading
               const Text(
-                'Card Details',
+                'PAN Card Details',
                 style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF001F3F),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 20),
@@ -332,7 +338,7 @@ class _KYCVerificationScreenState extends State<KYCVerificationScreen> {
                           ),
                         )
                       : const Text(
-                          'Submit for Review',
+                          'Submit',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
