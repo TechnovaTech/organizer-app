@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'artist_dashboard_screen.dart';
 
 class ArtistFillProfileScreen extends StatefulWidget {
   const ArtistFillProfileScreen({super.key});
@@ -182,8 +183,11 @@ class _ArtistFillProfileScreenState extends State<ArtistFillProfileScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: _isFormValid ? () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Profile created successfully!')),
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ArtistDashboardScreen(),
+                    ),
                   );
                 } : null,
                 style: ElevatedButton.styleFrom(
