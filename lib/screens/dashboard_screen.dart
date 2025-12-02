@@ -6,6 +6,7 @@ import 'event_analytics_screen.dart';
 import 'edit_event_screen.dart';
 import 'view_event_screen.dart';
 import 'add_tickets_screen.dart';
+import 'user_profile_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -82,7 +83,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.person, color: Colors.white),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const UserProfileScreen()),
+              );
+            },
           ),
         ],
       ),

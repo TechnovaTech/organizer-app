@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'qr_scanner_screen.dart';
+import 'event_management_screen.dart';
 
 class JatraRegistrationScreen extends StatefulWidget {
   const JatraRegistrationScreen({super.key});
@@ -339,14 +341,28 @@ class _JatraRegistrationScreenState extends State<JatraRegistrationScreen> {
         unselectedItemColor: Colors.grey.shade600,
         currentIndex: _selectedIndex,
         onTap: (index) {
-          if (index == 0) { // Home
-            Navigator.pop(context);
-          } else if (index == 1) { // Events
-            Navigator.pop(context);
-          } else if (index == 2) { // Jatra - stay on current screen
-            // Do nothing, already on Jatra screen
-          } else if (index == 3) { // Scan
-            Navigator.pop(context);
+          setState(() {
+            _selectedIndex = index;
+          });
+          
+          switch (index) {
+            case 0: // Home
+              Navigator.pop(context);
+              break;
+            case 1: // Events
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const EventManagementScreen()),
+              );
+              break;
+            case 2: // Jatra - current screen
+              break;
+            case 3: // Scan
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const QRScannerScreen()),
+              );
+              break;
           }
         },
         items: const [

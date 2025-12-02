@@ -3,6 +3,7 @@ import 'edit_event_screen.dart';
 import 'jatra_registration_screen.dart';
 import 'qr_scanner_screen.dart';
 import 'event_media_upload_screen.dart';
+import 'profile_screen.dart';
 
 class EventManagementScreen extends StatefulWidget {
   const EventManagementScreen({super.key});
@@ -816,24 +817,34 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
         unselectedItemColor: Colors.grey.shade600,
         currentIndex: _selectedIndex,
         onTap: (index) {
-          if (index == 0) { // Home
-            Navigator.pop(context);
-          } else if (index == 1) { // Events - stay on current screen
-            // Do nothing, already on Events screen
-          } else if (index == 2) { // Jatra tab
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const JatraRegistrationScreen()),
-            );
-          } else if (index == 3) { // Scan tab
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const QRScannerScreen()),
-            );
-          } else {
-            setState(() {
-              _selectedIndex = index;
-            });
+          setState(() {
+            _selectedIndex = index;
+          });
+          
+          switch (index) {
+            case 0: // Home
+              Navigator.pop(context);
+              break;
+            case 1: // Events - current screen
+              break;
+            case 2: // Jatra
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const JatraRegistrationScreen()),
+              );
+              break;
+            case 3: // Scan
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const QRScannerScreen()),
+              );
+              break;
+            case 4: // Profile
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              );
+              break;
           }
         },
         items: const [

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'jatra_registration_screen.dart';
+import 'event_management_screen.dart';
 
 class QRScannerScreen extends StatefulWidget {
   const QRScannerScreen({super.key});
@@ -65,6 +67,32 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
         _resultColor = Colors.green;
       }
     });
+  }
+
+  void _onBottomNavTap(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+    
+    switch (index) {
+      case 0: // Home
+        Navigator.pop(context);
+        break;
+      case 1: // Events
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const EventManagementScreen()),
+        );
+        break;
+      case 2: // Jatra
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const JatraRegistrationScreen()),
+        );
+        break;
+      case 3: // Scan - current screen
+        break;
+    }
   }
 
   @override
@@ -218,6 +246,32 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
 
           ],
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+        selectedItemColor: const Color(0xFF001F3F),
+        unselectedItemColor: Colors.grey,
+        currentIndex: _selectedIndex,
+        onTap: _onBottomNavTap,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.event),
+            label: 'Events',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.festival),
+            label: 'Jatra',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.qr_code_scanner),
+            label: 'Scan',
+          ),
+        ],
       ),
     );
   }
