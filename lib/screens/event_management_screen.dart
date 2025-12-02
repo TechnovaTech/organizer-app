@@ -839,12 +839,7 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
                 MaterialPageRoute(builder: (context) => const QRScannerScreen()),
               );
               break;
-            case 4: // Profile
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfileScreen()),
-              );
-              break;
+
           }
         },
         items: const [
@@ -852,7 +847,6 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.event), label: 'Events'),
           BottomNavigationBarItem(icon: Icon(Icons.festival), label: 'Jatra'),
           BottomNavigationBarItem(icon: Icon(Icons.qr_code_scanner), label: 'Scan'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
     );
