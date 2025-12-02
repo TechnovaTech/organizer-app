@@ -9,6 +9,7 @@ class JatraRegistrationScreen extends StatefulWidget {
 
 class _JatraRegistrationScreenState extends State<JatraRegistrationScreen> {
   final _formKey = GlobalKey<FormState>();
+  int _selectedIndex = 2; // Jatra tab selected
   final TextEditingController _jatraNameController = TextEditingController();
   final TextEditingController _venueController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
@@ -330,6 +331,42 @@ class _JatraRegistrationScreenState extends State<JatraRegistrationScreen> {
             ],
           ),
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+        selectedItemColor: const Color(0xFF001F3F),
+        unselectedItemColor: Colors.grey.shade600,
+        currentIndex: _selectedIndex,
+        onTap: (index) {
+          if (index == 0) { // Home
+            Navigator.pop(context);
+          } else if (index == 1) { // Events
+            Navigator.pop(context);
+          } else if (index == 2) { // Jatra - stay on current screen
+            // Do nothing, already on Jatra screen
+          } else if (index == 3) { // Scan
+            Navigator.pop(context);
+          }
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.event),
+            label: 'Events',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.festival),
+            label: 'Jatra',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.qr_code_scanner),
+            label: 'Scan',
+          ),
+        ],
       ),
     );
   }

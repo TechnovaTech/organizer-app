@@ -9,6 +9,7 @@ class QRScannerScreen extends StatefulWidget {
 
 class _QRScannerScreenState extends State<QRScannerScreen> {
   bool _isScanning = false;
+  int _selectedIndex = 3; // Scan tab selected
   String _scanResult = '';
   String _resultMessage = '';
   Color _resultColor = Colors.grey;

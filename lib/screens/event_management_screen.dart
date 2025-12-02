@@ -17,12 +17,71 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
+  List<Map<String, String>> _addedArtists = [];
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _timeController = TextEditingController();
   final TextEditingController _endDateController = TextEditingController();
   final TextEditingController _endTimeController = TextEditingController();
   bool _showLocationError = false;
   bool _showEndTime = false;
+
+  void _showAddArtistDialog() {
+    final nameController = TextEditingController();
+    final genreController = TextEditingController();
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add Artist'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(
+                labelText: 'Artist Name',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: genreController,
+              decoration: const InputDecoration(
+                labelText: 'Genre',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (nameController.text.isNotEmpty && genreController.text.isNotEmpty) {
+                setState(() {
+                  _addedArtists.add({
+                    'name': nameController.text,
+                    'genre': genreController.text,
+                  });
+                });
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Artist added successfully')),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF001F3F),
+            ),
+            child: const Text('Add', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
   List<Map<String, dynamic>> events = [
     {
       'title': 'Garba Night 2024',
@@ -299,38 +358,55 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
               ),
             ],
             
-            const SizedBox(height: 12),
+            const SizedBox(height: 32),
             
-            // Online Option
+            // Artist Section
+            const Text(
+              'Artists',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Add artists to your event.',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey.shade600,
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            // Add Artist Button
             GestureDetector(
               onTap: () {
-                setState(() {
-                  _selectedLocationType = 'online';
-                });
+                _showAddArtistDialog();
               },
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: _selectedLocationType == 'online' ? const Color(0xFF001F3F) : Colors.grey.shade300,
-                    width: _selectedLocationType == 'online' ? 2 : 1,
+                    color: const Color(0xFF001F3F),
+                    width: 2,
                   ),
                   borderRadius: BorderRadius.circular(8),
-                  color: _selectedLocationType == 'online' ? const Color(0xFF001F3F).withOpacity(0.05) : Colors.white,
+                  color: const Color(0xFF001F3F).withOpacity(0.05),
                 ),
                 child: Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: _selectedLocationType == 'online' ? const Color(0xFF001F3F).withOpacity(0.1) : Colors.grey.shade100,
+                        color: const Color(0xFF001F3F).withOpacity(0.1),
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: Icon(
-                        Icons.computer,
+                      child: const Icon(
+                        Icons.person_add,
                         size: 20,
-                        color: _selectedLocationType == 'online' ? const Color(0xFF001F3F) : Colors.grey.shade600,
+                        color: Color(0xFF001F3F),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -339,14 +415,14 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Online',
+                            'Add Artist',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                           Text(
-                            'Host virtual events, sharing access with ticket buyers.',
+                            'Add performers to your event.',
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.grey,
@@ -359,6 +435,64 @@ class _EventManagementScreenState extends State<EventManagementScreen> {
                 ),
               ),
             ),
+            
+            // Added Artists List
+            if (_addedArtists.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              ..._addedArtists.map((artist) => Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundColor: const Color(0xFF001F3F).withOpacity(0.1),
+                      child: const Icon(
+                        Icons.person,
+                        color: Color(0xFF001F3F),
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            artist['name'] ?? '',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            artist['genre'] ?? '',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _addedArtists.remove(artist);
+                        });
+                      },
+                      icon: const Icon(Icons.close, size: 16),
+                      color: Colors.red,
+                    ),
+                  ],
+                ),
+              )).toList(),
+            ],
             
             const SizedBox(height: 32),
             
