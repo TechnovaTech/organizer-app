@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'edit_profile_screen.dart';
 
 class ArtistProfileScreen extends StatelessWidget {
   const ArtistProfileScreen({super.key});
@@ -11,32 +12,81 @@ class ArtistProfileScreen extends StatelessWidget {
           // Cover Image & Profile Picture
           Stack(
             children: [
-              Container(
-                height: 200,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF001F3F), Color(0xFF003366)],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
+              GestureDetector(
+                onTap: () => _showImageSourceDialog(context, 'banner'),
+                child: Container(
+                  height: 200,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Color(0xFF001F3F), Color(0xFF003366)],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
                   ),
-                ),
-                child: Center(
-                  child: Icon(Icons.camera_alt, color: Colors.white54, size: 40),
+                  child: Stack(
+                    children: [
+                      Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.camera_alt, color: Colors.white54, size: 40),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Tap to change cover',
+                              style: TextStyle(color: Colors.white70, fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Positioned(
+                        top: 16,
+                        right: 16,
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.black26,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Icon(Icons.edit, color: Colors.white, size: 16),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               Positioned(
                 bottom: -50,
                 left: 20,
-                child: Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 4),
-                    color: Colors.grey.shade200,
+                child: GestureDetector(
+                  onTap: () => _showImageSourceDialog(context, 'profile'),
+                  child: Stack(
+                    children: [
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 4),
+                          color: Colors.grey.shade200,
+                        ),
+                        child: Icon(Icons.person, size: 50, color: Colors.grey.shade600),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF001F3F),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                          child: const Icon(Icons.camera_alt, color: Colors.white, size: 14),
+                        ),
+                      ),
+                    ],
                   ),
-                  child: Icon(Icons.person, size: 50, color: Colors.grey.shade600),
                 ),
               ),
             ],
@@ -73,7 +123,14 @@ class ArtistProfileScreen extends StatelessWidget {
                       ),
                     ),
                     ElevatedButton.icon(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const EditProfileScreen(),
+                          ),
+                        );
+                      },
                       icon: Icon(Icons.edit, size: 16),
                       label: Text('Edit'),
                       style: ElevatedButton.styleFrom(
@@ -144,7 +201,7 @@ class ArtistProfileScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       ElevatedButton.icon(
-                        onPressed: () {},
+                        onPressed: () => _showMediaSourceDialog(context),
                         icon: Icon(Icons.add),
                         label: Text('Add Media'),
                         style: ElevatedButton.styleFrom(
@@ -188,6 +245,157 @@ class ArtistProfileScreen extends StatelessWidget {
         if (child != null) child,
         const SizedBox(height: 24),
       ],
+    );
+  }
+
+  void _showImageSourceDialog(BuildContext context, String type) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Select ${type == 'profile' ? 'Profile Picture' : 'Cover Image'}',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildSourceOption(
+                    context,
+                    'Camera',
+                    Icons.camera_alt,
+                    () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Camera functionality for $type')),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildSourceOption(
+                    context,
+                    'Gallery',
+                    Icons.photo_library,
+                    () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Gallery functionality for $type')),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showMediaSourceDialog(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Add Media to Gallery',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildSourceOption(
+                    context,
+                    'Photo',
+                    Icons.photo_camera,
+                    () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Photo picker functionality')),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildSourceOption(
+                    context,
+                    'Video',
+                    Icons.videocam,
+                    () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Video picker functionality')),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildSourceOption(
+                    context,
+                    'Gallery',
+                    Icons.photo_library,
+                    () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Gallery picker functionality')),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSourceOption(
+    BuildContext context,
+    String title,
+    IconData icon,
+    VoidCallback onTap,
+  ) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, size: 32, color: Color(0xFF001F3F)),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'artist_dashboard_screen.dart';
 
 class ArtistFillProfileScreen extends StatefulWidget {
@@ -89,11 +90,7 @@ class _ArtistFillProfileScreenState extends State<ArtistFillProfileScreen> {
                     bottom: 0,
                     right: 0,
                     child: GestureDetector(
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Photo upload functionality')),
-                        );
-                      },
+                      onTap: () => _showImageSourceDialog(),
                       child: Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
@@ -170,11 +167,34 @@ class _ArtistFillProfileScreenState extends State<ArtistFillProfileScreen> {
             // Pricing Field (Optional)
             _buildLabel('Pricing per Hour', false),
             const SizedBox(height: 8),
-            _buildTextField(
+            TextField(
               controller: _pricingController,
-              hintText: 'Enter your rate (optional)',
               keyboardType: TextInputType.number,
-              prefixText: '₹ ',
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+              ],
+              decoration: InputDecoration(
+                hintText: 'Enter your rate (optional)',
+                hintStyle: TextStyle(color: Colors.grey.shade500),
+                prefixText: '₹ ',
+                prefixStyle: const TextStyle(
+                  color: Colors.black87,
+                  fontWeight: FontWeight.w500,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.grey.shade300),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.grey.shade300),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: Color(0xFF001F3F), width: 2),
+                ),
+                contentPadding: const EdgeInsets.all(16),
+              ),
             ),
             const SizedBox(height: 40),
             
@@ -265,6 +285,83 @@ class _ArtistFillProfileScreenState extends State<ArtistFillProfileScreen> {
           borderSide: const BorderSide(color: Color(0xFF001F3F), width: 2),
         ),
         contentPadding: const EdgeInsets.all(16),
+      ),
+    );
+  }
+
+  void _showImageSourceDialog() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Select Profile Picture',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildSourceOption(
+                    'Camera',
+                    Icons.camera_alt,
+                    () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Camera functionality')),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildSourceOption(
+                    'Gallery',
+                    Icons.photo_library,
+                    () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Gallery functionality')),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSourceOption(String title, IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, size: 40, color: Color(0xFF001F3F)),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
